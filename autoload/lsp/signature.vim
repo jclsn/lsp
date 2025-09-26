@@ -41,6 +41,25 @@ export def InitOnce()
   hlset([{name: 'LspSigActiveParameter', default: true, linksto: 'LineNr'}])
 enddef
 
+def LspShowSignatureCb(timer: number)
+  call g:LspShowSignature()
+enddef
+
+# Checks if the cursor moved over a trigger character to
+# not break autopair plugins
+def DetectJumpOverTriggerChar(triggerChars: list<string>)
+  var col = col('.')
+  var lineStr = getline('.')
+
+  for ch in triggerChars
+    if ch == ','
+      break
+    elseif lineStr[col - 2] == ch
+      CloseCurBufSignaturePopup()
+    endif
+  endfor
+enddef
+
 # Initialize the signature triggers for the current buffer
 export def BufferInit(lspserver: dict<any>)
   if !lspserver.isSignatureHelpProvider
@@ -55,14 +74,21 @@ export def BufferInit(lspserver: dict<any>)
     return
   endif
 
+  var triggerChars = lspserver.caps.signatureHelpProvider.triggerCharacters
+
   # map characters that trigger signature help
-  for ch in lspserver.caps.signatureHelpProvider.triggerCharacters
+  for ch in triggerChars
     var mapChar = ch
     if ch =~ ' '
       mapChar = '<Space>'
     endif
-    exe $"inoremap <buffer> <silent> {mapChar} {mapChar}<C-R>=g:LspShowSignature()<CR>"
+    # triggers without mappings to not conflict with automatic pair-closing
+    # plugins like autopairs.vim or vim-PairTools
+    exe $'autocmd InsertCharPre <buffer> if v:char ==# "{mapChar}" | call timer_start(1, function("LspShowSignatureCb")) | endif'
   endfor
+
+  # Check for jumps over a trigger char, as automatic pair-closing plugins do
+  exe $'autocmd CursorMovedI <buffer> call DetectJumpOverTriggerChar({triggerChars})'
 
   # close the signature popup when leaving insert mode
   autocmd_add([{bufnr: bufnr(),

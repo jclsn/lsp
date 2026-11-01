@@ -468,13 +468,20 @@ def SetOutlineBufferOptions()
   &l:fillchars = 'fold: ,eob: '
 enddef
 
+# Display the keys available in the outline window
+def OutlineShowHelp()
+  echo '<CR>/double-click: jump  p: preview  K: details  Z: zoom  za: fold  q: close'
+enddef
+
 # Map keys usable in the outline buffer
 def SetupOutlineBufferMappings()
   :nnoremap <silent> <buffer> q :quit<CR>
   :nnoremap <silent> <buffer> <CR> <scriptcmd>OutlineJumpToSymbol()<CR>
+  :nnoremap <silent> <buffer> <2-LeftMouse> <scriptcmd>OutlineJumpToSymbol()<CR>
   :nnoremap <silent> <buffer> p <scriptcmd>OutlineJumpToSymbol(true)<CR>
   :nnoremap <silent> <buffer> K <scriptcmd>OutlineShowSymbolDetail(line('.'))<CR>
   :nnoremap <silent> <buffer> Z <scriptcmd>ToggleOutlineZoom()<CR>
+  :nnoremap <silent> <buffer> ? <scriptcmd>OutlineShowHelp()<CR>
 enddef
 
 # Setup the highlight groups and text properties in the outline buffer

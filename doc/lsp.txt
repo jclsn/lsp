@@ -839,6 +839,9 @@ entire workspace.
 				  window, that window is reused; otherwise the
 				  file is opened in the nearest normal buffer
 				  window, or a new split is created.
+			<2-LeftMouse>
+				  Same as <CR>.  Requires the 'mouse' option
+				  to be set.
 			p	  Center the symbol (preview) in the source
 				  file window but keep the cursor in the
 				  outline window.
@@ -846,6 +849,7 @@ entire workspace.
 			Z	  maximize or minimize (toggle) the outline
 				  window size.
 			q	  Close the outline window.
+			?	  Show the available keys.
 
 			The current symbol is highlighted using the |Search|
 			highlight group and updated when the cursor is idle

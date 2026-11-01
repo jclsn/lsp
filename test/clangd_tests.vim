@@ -2328,6 +2328,13 @@ def g:Test_LspOutline()
   execute $':{bnum}bw'
   g:LspOptionsSet({outlineShowIcons: true})
 
+  # Validate the keys help message
+  :LspOutline
+  bnum = bufnr('LSP-Outline')
+  win_gotoid(bufwinid(bnum))
+  assert_match('<CR>/double-click: jump', execute('normal ?'))
+  execute $':{bnum}bw'
+
   # Validate the message displayed for a file without any symbols
   :%d
   :LspOutline

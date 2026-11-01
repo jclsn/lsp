@@ -2759,6 +2759,10 @@ override them.
 *LspInlayHintsType*		Used to highlight inlay hints of kind "type".
 				By default, linked to the "Label" highlight
 				group.
+*LspOutlineKind*		Used to highlight the symbol kinds (e.g.
+				Function, Variable) in the |:LspOutline|
+				window.  By default, linked to the "Title"
+				highlight group.
 *LspPopup*			Used to highlight popup contents.  By default,
 				linked to the "Pmenu" highlight group.
 *LspPopupBorder*		Used to highlight popup borders.  By default,

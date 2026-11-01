@@ -90,6 +90,7 @@ def AddSymbolText(bnr: number,
 			pfx: string,
 			text: list<string>,
 			lnumMap: list<dict<any>>,
+			kindProps: list<dict<any>>,
 			children: bool)
   var prefix: string = pfx .. '  '
   for [symType, symbols] in symbolTypeTable->items()
@@ -102,13 +103,18 @@ def AddSymbolText(bnr: number,
     # Symbols are indented one level below their kind. Use a separate
     # variable so that the indentation doesn't grow with each kind.
     var symPrefix: string = prefix
+    var kindCol: number = 1
     if children
       text->extend([$"{prefix}{symType}"])
+      kindCol += prefix->len()
       symPrefix ..= '  '
     else
-      text->extend([$"{symType}@"])
+      text->extend([symType])
     endif
     lnumMap->extend([{}])
+    # remember the location of the kind name to highlight it later
+    kindProps->add({lnum: lnumMap->len(), col: kindCol,
+		    length: symType->len()})
     for s in symbols
       text->add(symPrefix .. s.name)
       # remember the line number for the symbol
@@ -121,7 +127,8 @@ def AddSymbolText(bnr: number,
       })
       s.outlineLine = lnumMap->len()
       if s->has_key('children') && !s.children->empty()
-	AddSymbolText(bnr, s.children, symPrefix, text, lnumMap, true)
+	AddSymbolText(bnr, s.children, symPrefix, text, lnumMap, kindProps,
+		      true)
       endif
     endfor
   endfor
@@ -158,8 +165,13 @@ export def UpdateOutlineWindow(fname: string,
   # First two lines in the buffer display comment information
   var lnumMap: list<dict<any>> = [{}, {}]
   var text: list<string> = []
-  AddSymbolText(fname->bufnr(), symbolTypeTable, '', text, lnumMap, false)
+  var kindProps: list<dict<any>> = []
+  AddSymbolText(fname->bufnr(), symbolTypeTable, '', text, lnumMap,
+		kindProps, false)
   text->append('$')
+  for p in kindProps
+    prop_add(p.lnum, p.col, {type: 'LspOutlineKind', length: p.length})
+  endfor
   w:lspSymbols = {
     filename: fname,
     lnumTable: lnumMap,
@@ -285,8 +297,6 @@ enddef
 def OutlineCleanup()
   # Remove the outline autocommands
   :silent! autocmd_delete([{group: 'LSPOutline'}])
-
-  :silent! syntax clear LSPTitle LSPTitleAt
 enddef
 
 # Toggle the outline window. Returns true if it opened the window, and false if it closed it.
@@ -356,17 +366,17 @@ def SetupOutlineBufferMappings()
   :nnoremap <silent> <buffer> Z <scriptcmd>ToggleOutlineZoom()<CR>
 enddef
 
-# Setup syntax and text properties in the outline buffer
+# Setup the highlight groups and text properties in the outline buffer
 def SetupOutlineBufferSyntax()
-  # highlight all the symbol types
-  :syntax match LSPTitle  "^\s*[a-zA-Z]\+@$" contains=LSPTitleAt
-  :execute ':syntax match LSPTitleAt contained "@"' .. (has('conceal') ? ' conceal' : '')
+  hlset([
+    {name: 'LspOutlineKind', default: true, linksto: 'Title'}
+  ])
 
-  if str2nr(&t_Co) > 2
-    :highlight clear LSPTitle LSPTitleAt
-    :highlight default link LSPTitle Title
-    :highlight default link LSPTitleAt Ignore
-  endif
+  # highlight the symbol kinds (e.g. Function, Variable)
+  prop_type_add('LspOutlineKind', {
+    bufnr: bufnr(),
+    highlight: 'LspOutlineKind'
+  })
 
   prop_type_add('LspOutlineHighlight', {
     bufnr: bufnr(),

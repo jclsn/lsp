@@ -826,9 +826,11 @@ entire workspace.
 			are indented below their parent kind.  The number of
 			symbols of each kind is shown after the kind name and
 			an icon is shown before it (see
-			|lsp-opt-outlineShowIcons|).  Folds are
-			created using indent-based folding; up to four levels
-			are expanded by default.
+			|lsp-opt-outlineShowIcons|).  The symbol names are
+			highlighted based on their kind (see
+			|LspOutlineFunction|, |LspOutlineType|, etc.).
+			Folds are created using indent-based folding; up to
+			four levels are expanded by default.
 
 			The following keys are available in the outline
 			window:
@@ -2785,12 +2787,20 @@ override them.
 *LspInlayHintsType*		Used to highlight inlay hints of kind "type".
 				By default, linked to the "Label" highlight
 				group.
+*LspOutlineConstant*		Used to highlight the names of constants, enum
+				members and literal symbols in the
+				|:LspOutline| window.  By default, linked to
+				the "Constant" highlight group.
 *LspOutlineCount*		Used to highlight the number of symbols of a
 				kind in the |:LspOutline| window.  By default,
 				linked to the "Comment" highlight group.
 *LspOutlineFile*		Used to highlight the file name at the top of
 				the |:LspOutline| window.  By default, linked
 				to the "Directory" highlight group.
+*LspOutlineFunction*		Used to highlight the names of functions,
+				methods and constructors in the |:LspOutline|
+				window.  By default, linked to the "Function"
+				highlight group.
 *LspOutlineIcon*		Used to highlight the symbol kind icons in the
 				|:LspOutline| window.  By default, linked to the
 				"Special" highlight group.
@@ -2802,6 +2812,21 @@ override them.
 				Function, Variable) in the |:LspOutline|
 				window.  By default, linked to the "Title"
 				highlight group.
+*LspOutlineModule*		Used to highlight the names of files, modules,
+				namespaces and packages in the |:LspOutline|
+				window.  By default, linked to the "Include"
+				highlight group.
+*LspOutlineOperator*		Used to highlight the names of operators in
+				the |:LspOutline| window.  By default, linked
+				to the "Operator" highlight group.
+*LspOutlineType*		Used to highlight the names of classes,
+				structs, interfaces, enums and type parameters
+				in the |:LspOutline| window.  By default,
+				linked to the "Type" highlight group.
+*LspOutlineVariable*		Used to highlight the names of variables,
+				fields, properties and other symbols in the
+				|:LspOutline| window.  By default, linked to
+				the "Identifier" highlight group.
 *LspPopup*			Used to highlight popup contents.  By default,
 				linked to the "Pmenu" highlight group.
 *LspPopupBorder*		Used to highlight popup borders.  By default,

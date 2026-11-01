@@ -117,6 +117,37 @@ const defaultKindIcons: dict<string> = {
   TypeParameter: 'τ'
 }
 
+# Highlight groups used for the symbol names of each kind.  Similar kinds
+# share a group, which is linked to a standard syntax group.
+const kindHighlights: dict<string> = {
+  File: 'LspOutlineModule',
+  Module: 'LspOutlineModule',
+  Namespace: 'LspOutlineModule',
+  Package: 'LspOutlineModule',
+  Class: 'LspOutlineType',
+  Interface: 'LspOutlineType',
+  Enum: 'LspOutlineType',
+  Struct: 'LspOutlineType',
+  TypeParameter: 'LspOutlineType',
+  Method: 'LspOutlineFunction',
+  Function: 'LspOutlineFunction',
+  Constructor: 'LspOutlineFunction',
+  Property: 'LspOutlineVariable',
+  Field: 'LspOutlineVariable',
+  Variable: 'LspOutlineVariable',
+  Key: 'LspOutlineVariable',
+  Object: 'LspOutlineVariable',
+  Array: 'LspOutlineVariable',
+  Event: 'LspOutlineVariable',
+  Constant: 'LspOutlineConstant',
+  EnumMember: 'LspOutlineConstant',
+  String: 'LspOutlineConstant',
+  Number: 'LspOutlineConstant',
+  Boolean: 'LspOutlineConstant',
+  Null: 'LspOutlineConstant',
+  Operator: 'LspOutlineOperator'
+}
+
 # Returns the icon to display before the symbol kind "kind".  Returns an empty
 # string if icons are disabled or no icon is defined for the kind.
 def KindIcon(kind: string): string
@@ -164,6 +195,7 @@ def AddSymbolText(bnr: number,
 		      length: icon->len(), type: 'LspOutlineIcon'})
     endif
     var kindCol: number = iconCol + iconText->len()
+    var symHighlight: string = kindHighlights->get(symType, '')
     kindProps->add({lnum: lnumMap->len(), col: kindCol,
 		    length: symType->len(), type: 'LspOutlineKind'})
     kindProps->add({lnum: lnumMap->len(), col: kindCol + symType->len() + 1,
@@ -179,6 +211,11 @@ def AddSymbolText(bnr: number,
 	col: start_col
       })
       s.outlineLine = lnumMap->len()
+      # highlight the symbol name based on the kind
+      if !symHighlight->empty() && !s.name->empty()
+	kindProps->add({lnum: s.outlineLine, col: symPrefix->len() + 1,
+			length: s.name->len(), type: symHighlight})
+      endif
       if s->has_key('children') && !s.children->empty()
 	AddSymbolText(bnr, s.children, symPrefix, text, lnumMap, kindProps,
 		      true)
@@ -447,7 +484,13 @@ def SetupOutlineBufferSyntax()
     {name: 'LspOutlineKind', default: true, linksto: 'Title'},
     {name: 'LspOutlineCount', default: true, linksto: 'Comment'},
     {name: 'LspOutlineFile', default: true, linksto: 'Directory'},
-    {name: 'LspOutlineInfo', default: true, linksto: 'Comment'}
+    {name: 'LspOutlineInfo', default: true, linksto: 'Comment'},
+    {name: 'LspOutlineConstant', default: true, linksto: 'Constant'},
+    {name: 'LspOutlineFunction', default: true, linksto: 'Function'},
+    {name: 'LspOutlineModule', default: true, linksto: 'Include'},
+    {name: 'LspOutlineOperator', default: true, linksto: 'Operator'},
+    {name: 'LspOutlineType', default: true, linksto: 'Type'},
+    {name: 'LspOutlineVariable', default: true, linksto: 'Identifier'}
   ])
 
   # highlight the symbol kind icons
@@ -480,10 +523,18 @@ def SetupOutlineBufferSyntax()
     highlight: 'LspOutlineInfo'
   })
 
+  # highlight the symbol names based on the kind
+  for hlName in kindHighlights->values()->sort()->uniq()
+    prop_type_add(hlName, {bufnr: bufnr(), highlight: hlName})
+  endfor
+
+  # The current symbol highlight takes precedence over the symbol name
+  # highlight
   prop_type_add('LspOutlineHighlight', {
     bufnr: bufnr(),
     highlight: 'Search',
-    override: true
+    override: true,
+    priority: 10
   })
 enddef
 

@@ -2263,6 +2263,9 @@ def g:Test_LspOutline()
   assert_equal(['▤ XLspOutline.c', getcwd()->fnamemodify(':~'), ''],
 	       getbufline(bnum, 1, 3))
   assert_equal(['ƒ Function (2)', '  aFuncOutline', '  bFuncOutline'], getbufline(bnum, 4, '$'))
+  # Validate that the symbol names are highlighted based on the kind
+  assert_equal('LspOutlineFunction',
+	       prop_list(5, {bufnr: bnum, types: ['LspOutlineFunction']})[0].type)
 
   # Validate position vert topleft
   assert_equal(['row', [['leaf', winid + 1], ['leaf', winid]]], winlayout())

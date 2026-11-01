@@ -820,7 +820,7 @@ entire workspace.
 			Supports the "open", "close", and "toggle" arguments.
 			It assumes "open" if no argument is given.
 
-			The window header shows shows the file name and its
+			The window header shows the file name and its
 			parent directory.  Symbols are grouped under their
 			kind (e.g., Function, Variable) and nested children
 			are indented below their parent kind.  The number of
@@ -2788,9 +2788,16 @@ override them.
 *LspOutlineCount*		Used to highlight the number of symbols of a
 				kind in the |:LspOutline| window.  By default,
 				linked to the "Comment" highlight group.
+*LspOutlineFile*		Used to highlight the file name at the top of
+				the |:LspOutline| window.  By default, linked
+				to the "Directory" highlight group.
 *LspOutlineIcon*		Used to highlight the symbol kind icons in the
 				|:LspOutline| window.  By default, linked to the
 				"Special" highlight group.
+*LspOutlineInfo*		Used to highlight the directory name and the
+				"No symbols found" message in the
+				|:LspOutline| window.  By default, linked to
+				the "Comment" highlight group.
 *LspOutlineKind*		Used to highlight the symbol kinds (e.g.
 				Function, Variable) in the |:LspOutline|
 				window.  By default, linked to the "Title"

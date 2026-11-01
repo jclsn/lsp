@@ -2260,6 +2260,8 @@ def g:Test_LspOutline()
   assert_equal(2, winnr('$'))
   var bnum = winbufnr(winid + 1)
   assert_equal('LSP-Outline', bufname(bnum))
+  assert_equal(['▤ XLspOutline.c', getcwd()->fnamemodify(':~'), ''],
+	       getbufline(bnum, 1, 3))
   assert_equal(['ƒ Function (2)', '  aFuncOutline', '  bFuncOutline'], getbufline(bnum, 4, '$'))
 
   # Validate position vert topleft
@@ -2322,6 +2324,14 @@ def g:Test_LspOutline()
   assert_equal(['Function (2)', '  aFuncOutline', '  bFuncOutline'], getbufline(bnum, 4, '$'))
   execute $':{bnum}bw'
   g:LspOptionsSet({outlineShowIcons: true})
+
+  # Validate the message displayed for a file without any symbols
+  :%d
+  :LspOutline
+  bnum = bufnr('LSP-Outline')
+  g:WaitForAssert(() => assert_equal(['', 'No symbols found'],
+				     getbufline(bnum, 3, '$')))
+  execute $':{bnum}bw'
 
   :%bw!
 enddef

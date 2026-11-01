@@ -212,15 +212,31 @@ export def UpdateOutlineWindow(fname: string,
 
   :setlocal modifiable
   deletebufline('', 1, '$')
-  setline(1, ['# LSP Outline View',
-		$'# {fname->fnamemodify(":t")} ({fname->fnamemodify(":h")})'])
 
-  # First two lines in the buffer display comment information
+  # The first two lines in the buffer display the file name and the directory
+  var fileIcon: string = KindIcon('File')
+  var fileIconText: string = fileIcon->empty() ? '' : $'{fileIcon} '
+  var fileText: string = fname->fnamemodify(':t')
+  setline(1, [$'{fileIconText}{fileText}', fname->fnamemodify(':p:~:h')])
+  if !fileIcon->empty()
+    prop_add(1, 1, {type: 'LspOutlineIcon', length: fileIcon->len()})
+  endif
+  prop_add(1, fileIconText->len() + 1, {type: 'LspOutlineFile',
+					length: fileText->len()})
+  prop_add(2, 1, {type: 'LspOutlineInfo', length: getline(2)->len()})
+
   var lnumMap: list<dict<any>> = [{}, {}]
   var text: list<string> = []
   var kindProps: list<dict<any>> = []
   AddSymbolText(fname->bufnr(), symbolTypeTable, '', text, lnumMap,
 		kindProps, false)
+  if text->empty()
+    # Let the user know that the file doesn't have any symbols
+    var msg: string = 'No symbols found'
+    text = ['', msg]
+    kindProps->add({lnum: 4, col: 1, length: msg->len(),
+		    type: 'LspOutlineInfo'})
+  endif
   text->append('$')
   for p in kindProps
     prop_add(p.lnum, p.col, {type: p.type, length: p.length})
@@ -424,7 +440,9 @@ def SetupOutlineBufferSyntax()
   hlset([
     {name: 'LspOutlineIcon', default: true, linksto: 'Special'},
     {name: 'LspOutlineKind', default: true, linksto: 'Title'},
-    {name: 'LspOutlineCount', default: true, linksto: 'Comment'}
+    {name: 'LspOutlineCount', default: true, linksto: 'Comment'},
+    {name: 'LspOutlineFile', default: true, linksto: 'Directory'},
+    {name: 'LspOutlineInfo', default: true, linksto: 'Comment'}
   ])
 
   # highlight the symbol kind icons
@@ -443,6 +461,18 @@ def SetupOutlineBufferSyntax()
   prop_type_add('LspOutlineCount', {
     bufnr: bufnr(),
     highlight: 'LspOutlineCount'
+  })
+
+  # highlight the file name in the header
+  prop_type_add('LspOutlineFile', {
+    bufnr: bufnr(),
+    highlight: 'LspOutlineFile'
+  })
+
+  # highlight the directory name and informational messages
+  prop_type_add('LspOutlineInfo', {
+    bufnr: bufnr(),
+    highlight: 'LspOutlineInfo'
   })
 
   prop_type_add('LspOutlineHighlight', {
@@ -509,7 +539,7 @@ def Open(cmdmods: string, winsize: number)
   SetOutlineBufferOptions()
   SetupOutlineBufferMappings()
 
-  setline(1, ['# File Outline'])
+  setline(1, ['Loading symbols...'])
   :setlocal nomodifiable
 
   SetupOutlineBufferSyntax()

@@ -127,8 +127,15 @@ export var lspOptions: dict<any> = {
   # disabled by default because it edits the buffer while you are typing.
   onTypeFormatting: false,
 
+  # Icons to display before the symbol kinds in the outline window.  Overrides
+  # the default icon for a kind (e.g. {Function: 'F'})
+  outlineIcons: {},
+
   # Open outline window on right side
   outlineOnRight: false,
+
+  # Show icons before the symbol kinds in the outline window
+  outlineShowIcons: true,
 
   # Outline window size
   outlineWinSize: 20,

@@ -824,7 +824,9 @@ entire workspace.
 			parent directory.  Symbols are grouped under their
 			kind (e.g., Function, Variable) and nested children
 			are indented below their parent kind.  The number of
-			symbols of each kind is shown after the kind name.  Folds are
+			symbols of each kind is shown after the kind name and
+			an icon is shown before it (see
+			|lsp-opt-outlineShowIcons|).  Folds are
 			created using indent-based folding; up to four levels
 			are expanded by default.
 
@@ -1811,12 +1813,35 @@ onTypeFormatting	|Boolean| option.  Reformat code as you type, using the
 			buffer while you are typing.  See |lsp-on-type-format|
 			for more information.
 
+						*lsp-opt-outlineIcons*
+outlineIcons		|Dictionary| option.  Icons to display before the
+			symbol kinds in the outline window.  The key is the
+			name of the symbol kind (e.g. "Function", "Class")
+			and the value is the icon.  Overrides the built-in
+			icon for that kind; use an empty string to not show
+			an icon for a kind.  Only used when
+			|lsp-opt-outlineShowIcons| is true.  By default this
+			is empty.  Example (requires a Nerd Font): >
+
+			    g:LspOptionsSet({outlineIcons: {
+				  Class: "\ueb5b",
+				  Function: "\uea8c",
+				  Method: "\uea8c",
+				  Variable: "\uea88"
+				}})
+<
 						*lsp-opt-outlineOnRight*
 outlineOnRight		|Boolean| option.  When true, open the outline window
 			on the right side of the screen.  When false (the
 			default), open it on the left side.  Providing
 			|:command-modifiers| to |:LspOutline| overrides this
 			option.
+
+						*lsp-opt-outlineShowIcons*
+outlineShowIcons	|Boolean| option.  When true (the default), an icon
+			is displayed before each symbol kind in the outline
+			window.  The icons can be customized using
+			|lsp-opt-outlineIcons|.
 
 						*lsp-opt-outlineWinSize*
 outlineWinSize		|Number| option.  The width (number of columns) of
@@ -2763,6 +2788,9 @@ override them.
 *LspOutlineCount*		Used to highlight the number of symbols of a
 				kind in the |:LspOutline| window.  By default,
 				linked to the "Comment" highlight group.
+*LspOutlineIcon*		Used to highlight the symbol kind icons in the
+				|:LspOutline| window.  By default, linked to the
+				"Special" highlight group.
 *LspOutlineKind*		Used to highlight the symbol kinds (e.g.
 				Function, Variable) in the |:LspOutline|
 				window.  By default, linked to the "Title"

@@ -85,6 +85,48 @@ export def SkipOutlineRefresh(): bool
   return skipRefresh
 enddef
 
+# Default icons displayed before the symbol kinds.  Only characters which are
+# available in most fonts are used.  Can be overridden using the
+# "outlineIcons" option.
+const defaultKindIcons: dict<string> = {
+  File: '▤',
+  Module: '▣',
+  Namespace: '◫',
+  Package: '▦',
+  Class: '◆',
+  Method: 'ƒ',
+  Property: '◇',
+  Field: '▪',
+  Constructor: '⊕',
+  Enum: '∈',
+  Interface: '◈',
+  Function: 'ƒ',
+  Variable: '◦',
+  Constant: 'π',
+  String: '"',
+  Number: '#',
+  Boolean: '◐',
+  Array: '⊞',
+  Object: '⊙',
+  Key: 'κ',
+  Null: '∅',
+  EnumMember: '∙',
+  Struct: '▱',
+  Event: '↯',
+  Operator: '±',
+  TypeParameter: 'τ'
+}
+
+# Returns the icon to display before the symbol kind "kind".  Returns an empty
+# string if icons are disabled or no icon is defined for the kind.
+def KindIcon(kind: string): string
+  if !opt.lspOptions.outlineShowIcons
+    return ''
+  endif
+  return opt.lspOptions.outlineIcons->get(kind,
+					   defaultKindIcons->get(kind, ''))
+enddef
+
 def AddSymbolText(bnr: number,
 			symbolTypeTable: dict<list<dict<any>>>,
 			pfx: string,
@@ -108,12 +150,20 @@ def AddSymbolText(bnr: number,
       kindIndent = prefix
       symPrefix ..= '  '
     endif
-    # Display the kind name followed by the number of symbols of that kind
+    # Display the kind icon and name followed by the number of symbols of
+    # that kind
+    var icon: string = KindIcon(symType)
+    var iconText: string = icon->empty() ? '' : $'{icon} '
     var count: string = $'({symbols->len()})'
-    text->add($'{kindIndent}{symType} {count}')
+    text->add($'{kindIndent}{iconText}{symType} {count}')
     lnumMap->extend([{}])
-    # remember the location of the kind name and count to highlight them
-    var kindCol: number = kindIndent->len() + 1
+    # remember the location of the icon, kind name and count to highlight them
+    var iconCol: number = kindIndent->len() + 1
+    if !icon->empty()
+      kindProps->add({lnum: lnumMap->len(), col: iconCol,
+		      length: icon->len(), type: 'LspOutlineIcon'})
+    endif
+    var kindCol: number = iconCol + iconText->len()
     kindProps->add({lnum: lnumMap->len(), col: kindCol,
 		    length: symType->len(), type: 'LspOutlineKind'})
     kindProps->add({lnum: lnumMap->len(), col: kindCol + symType->len() + 1,
@@ -372,9 +422,16 @@ enddef
 # Setup the highlight groups and text properties in the outline buffer
 def SetupOutlineBufferSyntax()
   hlset([
+    {name: 'LspOutlineIcon', default: true, linksto: 'Special'},
     {name: 'LspOutlineKind', default: true, linksto: 'Title'},
     {name: 'LspOutlineCount', default: true, linksto: 'Comment'}
   ])
+
+  # highlight the symbol kind icons
+  prop_type_add('LspOutlineIcon', {
+    bufnr: bufnr(),
+    highlight: 'LspOutlineIcon'
+  })
 
   # highlight the symbol kinds (e.g. Function, Variable)
   prop_type_add('LspOutlineKind', {

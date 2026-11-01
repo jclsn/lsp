@@ -417,13 +417,18 @@ def SetOutlineBufferOptions()
   :setlocal buftype=nofile
   :setlocal bufhidden=delete
   :setlocal noswapfile nobuflisted
-  :setlocal nonumber norelativenumber fdc=0 nowrap winfixheight winfixwidth
+  :setlocal nonumber norelativenumber nowrap winfixheight winfixwidth
+  :setlocal cursorline nolist nospell signcolumn=no
   :setlocal undolevels=-1
   :setlocal shiftwidth=2
   :setlocal foldenable
   :setlocal foldcolumn=1
   :setlocal foldlevel=4
   :setlocal foldmethod=indent
+  # Show the first line of a closed fold as is and don't display "~" for the
+  # lines after the end of the buffer
+  &l:foldtext = "getline(v:foldstart) .. ' …'"
+  &l:fillchars = 'fold: ,eob: '
 enddef
 
 # Map keys usable in the outline buffer

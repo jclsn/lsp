@@ -2313,6 +2313,35 @@ def g:Test_LspOutline()
   :%bw!
 enddef
 
+# Test for the indentation of nested symbols in the :LspOutline window
+def g:Test_LspOutline_Nested()
+  silent! edit XLspOutlineNested.c
+  sleep 200m
+  var lines: list<string> =<< trim END
+    struct outer {
+      struct inner {
+        int z;
+      } in;
+      int x;
+    };
+  END
+  setline(1, lines)
+  g:WaitForServerFileLoad(0)
+  :LspOutline
+  var bnum = bufnr('LSP-Outline')
+  g:WaitForAssert(() => assert_notequal(-1,
+		getbufline(bnum, 1, '$')->index('  outer')))
+  var outline = getbufline(bnum, 1, '$')
+
+  # All the symbol kinds under "outer" must be at the same indentation
+  var kindLines = outline->copy()->filter((_, v) => v =~ '^    \S')
+  assert_equal(2, kindLines->len())
+  var fieldIdx = outline->index('    Field')
+  assert_notequal(-1, fieldIdx)
+  assert_equal(['      in', '      x'], outline[fieldIdx + 1 : fieldIdx + 2])
+  :%bw!
+enddef
+
 # Test for setting the 'tagfunc'
 def g:Test_LspTagFunc()
   var lines: list<string> =<< trim END

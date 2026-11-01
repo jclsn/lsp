@@ -99,15 +99,18 @@ def AddSymbolText(bnr: number,
       text->extend([''])
       lnumMap->extend([{}])
     endif
+    # Symbols are indented one level below their kind. Use a separate
+    # variable so that the indentation doesn't grow with each kind.
+    var symPrefix: string = prefix
     if children
       text->extend([$"{prefix}{symType}"])
-      prefix ..= '  '
+      symPrefix ..= '  '
     else
       text->extend([$"{symType}@"])
     endif
     lnumMap->extend([{}])
     for s in symbols
-      text->add(prefix .. s.name)
+      text->add(symPrefix .. s.name)
       # remember the line number for the symbol
       var s_start = s.selectionRange.start
       var start_col: number = util.GetLineByteFromPos(bnr, s_start) + 1
@@ -118,7 +121,7 @@ def AddSymbolText(bnr: number,
       })
       s.outlineLine = lnumMap->len()
       if s->has_key('children') && !s.children->empty()
-	AddSymbolText(bnr, s.children, prefix, text, lnumMap, true)
+	AddSymbolText(bnr, s.children, symPrefix, text, lnumMap, true)
       endif
     endfor
   endfor

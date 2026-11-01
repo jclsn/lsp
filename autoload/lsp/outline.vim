@@ -103,18 +103,21 @@ def AddSymbolText(bnr: number,
     # Symbols are indented one level below their kind. Use a separate
     # variable so that the indentation doesn't grow with each kind.
     var symPrefix: string = prefix
-    var kindCol: number = 1
+    var kindIndent: string = ''
     if children
-      text->extend([$"{prefix}{symType}"])
-      kindCol += prefix->len()
+      kindIndent = prefix
       symPrefix ..= '  '
-    else
-      text->extend([symType])
     endif
+    # Display the kind name followed by the number of symbols of that kind
+    var count: string = $'({symbols->len()})'
+    text->add($'{kindIndent}{symType} {count}')
     lnumMap->extend([{}])
-    # remember the location of the kind name to highlight it later
+    # remember the location of the kind name and count to highlight them
+    var kindCol: number = kindIndent->len() + 1
     kindProps->add({lnum: lnumMap->len(), col: kindCol,
-		    length: symType->len()})
+		    length: symType->len(), type: 'LspOutlineKind'})
+    kindProps->add({lnum: lnumMap->len(), col: kindCol + symType->len() + 1,
+		    length: count->len(), type: 'LspOutlineCount'})
     for s in symbols
       text->add(symPrefix .. s.name)
       # remember the line number for the symbol
@@ -170,7 +173,7 @@ export def UpdateOutlineWindow(fname: string,
 		kindProps, false)
   text->append('$')
   for p in kindProps
-    prop_add(p.lnum, p.col, {type: 'LspOutlineKind', length: p.length})
+    prop_add(p.lnum, p.col, {type: p.type, length: p.length})
   endfor
   w:lspSymbols = {
     filename: fname,
@@ -369,13 +372,20 @@ enddef
 # Setup the highlight groups and text properties in the outline buffer
 def SetupOutlineBufferSyntax()
   hlset([
-    {name: 'LspOutlineKind', default: true, linksto: 'Title'}
+    {name: 'LspOutlineKind', default: true, linksto: 'Title'},
+    {name: 'LspOutlineCount', default: true, linksto: 'Comment'}
   ])
 
   # highlight the symbol kinds (e.g. Function, Variable)
   prop_type_add('LspOutlineKind', {
     bufnr: bufnr(),
     highlight: 'LspOutlineKind'
+  })
+
+  # highlight the number of symbols of a kind
+  prop_type_add('LspOutlineCount', {
+    bufnr: bufnr(),
+    highlight: 'LspOutlineCount'
   })
 
   prop_type_add('LspOutlineHighlight', {

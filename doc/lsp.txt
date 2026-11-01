@@ -823,7 +823,8 @@ entire workspace.
 			The window header shows shows the file name and its
 			parent directory.  Symbols are grouped under their
 			kind (e.g., Function, Variable) and nested children
-			are indented below their parent kind.  Folds are
+			are indented below their parent kind.  The number of
+			symbols of each kind is shown after the kind name.  Folds are
 			created using indent-based folding; up to four levels
 			are expanded by default.
 
@@ -2759,6 +2760,9 @@ override them.
 *LspInlayHintsType*		Used to highlight inlay hints of kind "type".
 				By default, linked to the "Label" highlight
 				group.
+*LspOutlineCount*		Used to highlight the number of symbols of a
+				kind in the |:LspOutline| window.  By default,
+				linked to the "Comment" highlight group.
 *LspOutlineKind*		Used to highlight the symbol kinds (e.g.
 				Function, Variable) in the |:LspOutline|
 				window.  By default, linked to the "Title"

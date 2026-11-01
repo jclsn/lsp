@@ -2260,7 +2260,7 @@ def g:Test_LspOutline()
   assert_equal(2, winnr('$'))
   var bnum = winbufnr(winid + 1)
   assert_equal('LSP-Outline', bufname(bnum))
-  assert_equal(['Function', '  aFuncOutline', '  bFuncOutline'], getbufline(bnum, 4, '$'))
+  assert_equal(['Function (2)', '  aFuncOutline', '  bFuncOutline'], getbufline(bnum, 4, '$'))
 
   # Validate position vert topleft
   assert_equal(['row', [['leaf', winid + 1], ['leaf', winid]]], winlayout())
@@ -2276,7 +2276,7 @@ def g:Test_LspOutline()
   assert_equal(2, winnr('$'))
   bnum = winbufnr(winid + 2)
   assert_equal('LSP-Outline', bufname(bnum))
-  assert_equal(['Function', '  aFuncOutline', '  bFuncOutline'], getbufline(bnum, 4, '$'))
+  assert_equal(['Function (2)', '  aFuncOutline', '  bFuncOutline'], getbufline(bnum, 4, '$'))
   assert_equal(['row', [['leaf', winid], ['leaf', winid + 2]]], winlayout())
   g:LspOptionsSet({outlineOnRight: false})
   execute $':{bnum}bw'
@@ -2286,7 +2286,7 @@ def g:Test_LspOutline()
   assert_equal(2, winnr('$'))
   bnum = winbufnr(winid + 3)
   assert_equal('LSP-Outline', bufname(bnum))
-  assert_equal(['Function', '  aFuncOutline', '  bFuncOutline'], getbufline(bnum, 4, '$'))
+  assert_equal(['Function (2)', '  aFuncOutline', '  bFuncOutline'], getbufline(bnum, 4, '$'))
   assert_equal(['col', [['leaf', winid], ['leaf', winid + 3]]], winlayout())
   execute $':{bnum}bw'
 
@@ -2296,7 +2296,7 @@ def g:Test_LspOutline()
   assert_equal(2, winnr('$'))
   bnum = winbufnr(winid + 4)
   assert_equal('LSP-Outline', bufname(bnum))
-  assert_equal(['Function', '  aFuncOutline', '  bFuncOutline'], getbufline(bnum, 4, '$'))
+  assert_equal(['Function (2)', '  aFuncOutline', '  bFuncOutline'], getbufline(bnum, 4, '$'))
   assert_equal(40, winwidth(winid + 4))
   execute $':{bnum}bw'
   g:LspOptionsSet({outlineWinSize: 20})
@@ -2306,7 +2306,7 @@ def g:Test_LspOutline()
   assert_equal(2, winnr('$'))
   bnum = winbufnr(winid + 5)
   assert_equal('LSP-Outline', bufname(bnum))
-  assert_equal(['Function', '  aFuncOutline', '  bFuncOutline'], getbufline(bnum, 4, '$'))
+  assert_equal(['Function (2)', '  aFuncOutline', '  bFuncOutline'], getbufline(bnum, 4, '$'))
   assert_equal(37, winwidth(winid + 5))
   execute $':{bnum}bw'
 
@@ -2336,7 +2336,7 @@ def g:Test_LspOutline_Nested()
   # All the symbol kinds under "outer" must be at the same indentation
   var kindLines = outline->copy()->filter((_, v) => v =~ '^    \S')
   assert_equal(2, kindLines->len())
-  var fieldIdx = outline->index('    Field')
+  var fieldIdx = outline->index('    Field (2)')
   assert_notequal(-1, fieldIdx)
   assert_equal(['      in', '      x'], outline[fieldIdx + 1 : fieldIdx + 2])
   :%bw!
